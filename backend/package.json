@@ -1,0 +1,21 @@
+{
+  "name": "my-twitter-backend",
+  "version": "1.0.0",
+  "author": "Mykola Pogodin",
+  "description": "React/NodeJs pet-project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "server": "nodemon src/server.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "2.0.16"
+  },
+  "dependencies": {
+    "dotenv": "16.0.1",
+    "minio": "7.0.28",
+    "mysql": "2.18.1"
+  }
+}
