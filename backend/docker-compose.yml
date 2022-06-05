@@ -19,6 +19,7 @@ services:
       - MYSQL_USER_NAME=root
       - MYSQL_ROOT_PASSWORD=my-secret-pw
       - MYSQL_DATABASE=mytwitter
+      - JWT_KEY=secret-key
       - MINIO_ROOT_HOST=my-twitter-minio
       - MINIO_API_PORT=9000
       - MINIO_ROOT_USER=AKIAIOSFODNN7EXAMPLE

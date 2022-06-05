@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS tweets (id VARCHAR(255), author VARCHAR(255), title VARCHAR(255), message VARCHAR(255), pictureId VARCHAR(255));
