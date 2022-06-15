@@ -1,6 +1,11 @@
 const Minio = require("minio");
 
-const initializeStorage = () => {
+let storageInstance = null;
+
+const getStorageInstance = () => {
+  if (storageInstance) {
+    return storageInstance;
+  }
   const minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ROOT_HOST,
     port: Number(process.env.MINIO_API_PORT),
@@ -10,17 +15,18 @@ const initializeStorage = () => {
     pathStyle: true,
   });
 
-  const bucketName = "first-bucket";
-  (async () => {
-    console.log(`Creating Bucket: ${bucketName}`);
-    await minioClient.makeBucket(bucketName, "hello-there").catch((e) => {
-      console.log(`Error while creating bucket '${bucketName}': ${e.message}`);
-    });
+  storageInstance = minioClient;
+  return minioClient;
+};
 
+const initializeStorage = () => {
+  const storageInstance = getStorageInstance();
+
+  (async () => {
     console.log(`Listing all buckets...`);
-    const bucketsList = await minioClient.listBuckets();
+    const bucketsList = await storageInstance.listBuckets();
     console.log(`Buckets List: ${bucketsList.map((bucket) => bucket.name).join(",\t")}`);
   })();
 };
 
-module.exports = initializeStorage;
+module.exports = { initializeStorage, getStorageInstance };

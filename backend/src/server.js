@@ -1,7 +1,7 @@
 const http = require("http");
 const { serverHandlerFunction } = require("./builder");
 const { initializeDB } = require("./infrastructure/db/initializeDB");
-const initializeStorage = require("./infrastructure/storage/initializeStorage");
+const { initializeStorage } = require("./infrastructure/storage/initializeStorage");
 require("dotenv").config();
 
 initializeDB();

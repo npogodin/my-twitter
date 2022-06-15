@@ -1,1 +1,1 @@
-CREATE TABLE IF NOT EXISTS users (id VARCHAR(255), nickname VARCHAR(255), password VARCHAR(255));
+CREATE TABLE users (id VARCHAR(255), nickname VARCHAR(255), password VARCHAR(255));

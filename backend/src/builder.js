@@ -2,7 +2,7 @@ const { registerUser, loginUser, getUsers, logoutUser } = require("./controllers
 const mainErrorHandler = require("./errorHandlers/mainErrorHandler");
 const parseBody = require("./middlewares/parseBody");
 const checkAuth = require("./middlewares/checkAuth");
-const { createTweet } = require("./controllers/tweetsController");
+const { createTweet, editTweet, editTweetImage } = require("./controllers/tweetsController");
 
 const UNAUTHORIZED_CODE = 401;
 const NOT_FOUND_CODE = 404;
@@ -38,16 +38,40 @@ const serverBuilder = {
         successCode: 200,
       },
     },
-    PUT: {},
+    PUT: {
+      "/tweet/:param/image": {
+        controller: editTweetImage,
+        middlewares: [checkAuth],
+        successCode: 200,
+      },
+    },
     DELETE: {},
-    PATCH: {},
+    PATCH: {
+      "/tweet/:param": {
+        controller: editTweet,
+        middlewares: [checkAuth],
+        successCode: 200,
+      },
+    },
   },
   generalMiddlewares: [parseBody],
   errorHandler: mainErrorHandler,
 };
 
 const serverHandlerFunction = async (req, res) => {
-  const endpoint = serverBuilder.methods[req.method][req.url];
+  let endpoint = "";
+  if (req.headers["param-in-position"]) {
+    const paramPositions = req.headers["param-in-position"].split(",").map((pos) => Number(pos));
+
+    const urlWithParams = req.url
+      .split("/")
+      .map((path, index) => (paramPositions.includes(index) ? ":param" : path))
+      .join("/");
+
+    endpoint = serverBuilder.methods[req.method][urlWithParams];
+  } else {
+    endpoint = serverBuilder.methods[req.method][req.url];
+  }
 
   try {
     for (const generalMiddleware of serverBuilder.generalMiddlewares) {
