@@ -2,7 +2,13 @@ const { registerUser, loginUser, getUsers, logoutUser } = require("./controllers
 const mainErrorHandler = require("./errorHandlers/mainErrorHandler");
 const parseBody = require("./middlewares/parseBody");
 const checkAuth = require("./middlewares/checkAuth");
-const { createTweet, editTweet, editTweetImage } = require("./controllers/tweetsController");
+const {
+  createTweet,
+  editTweet,
+  editTweetImage,
+  deleteTweetImage,
+  getTweets,
+} = require("./controllers/tweetsController");
 
 const UNAUTHORIZED_CODE = 401;
 const NOT_FOUND_CODE = 404;
@@ -12,6 +18,11 @@ const serverBuilder = {
     GET: {
       "/users": {
         controller: getUsers,
+        middlewares: [checkAuth],
+        successCode: 200,
+      },
+      "/tweets": {
+        controller: getTweets,
         middlewares: [checkAuth],
         successCode: 200,
       },
@@ -45,7 +56,13 @@ const serverBuilder = {
         successCode: 200,
       },
     },
-    DELETE: {},
+    DELETE: {
+      "/tweet/:param/image": {
+        controller: deleteTweetImage,
+        middlewares: [checkAuth],
+        successCode: 200,
+      },
+    },
     PATCH: {
       "/tweet/:param": {
         controller: editTweet,
@@ -71,6 +88,11 @@ const serverHandlerFunction = async (req, res) => {
     endpoint = serverBuilder.methods[req.method][urlWithParams];
   } else {
     endpoint = serverBuilder.methods[req.method][req.url];
+  }
+
+  if (req.url.includes("?")) {
+    const urlWithoutQueryParams = req.url.split("?")[0];
+    endpoint = serverBuilder.methods[req.method][urlWithoutQueryParams];
   }
 
   try {

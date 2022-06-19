@@ -33,6 +33,13 @@ const dbTweetMethods = {
     const dbConnection = await getDbConnection();
     await dbConnection.query(`UPDATE tweets SET ${field}=? WHERE id="${id}"`, [value]);
   },
+  getTweetsList: async (limits) => {
+    const dbConnection = await getDbConnection();
+    const [tweets] = await dbConnection.query(
+      `SELECT id, author, title, message FROM tweets ${limits ? "LIMIT " + limits : ""}`,
+    );
+    return tweets;
+  },
 };
 
 module.exports = { dbUserMethods, dbTweetMethods };

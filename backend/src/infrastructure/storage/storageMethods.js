@@ -46,7 +46,7 @@ const storageMethods = {
 
       form.parse(req);
     }),
-  editTweetImage: async (req) =>
+  addNewTweetImage: async (req) =>
     new Promise(async (resolve) => {
       const storageInstance = getStorageInstance();
       const author = await getUserFromToken(req);
@@ -79,7 +79,7 @@ const storageMethods = {
     const userBucketName = `${tweet.author.toLowerCase()}-bucket`;
 
     await storageInstance.removeObject(userBucketName, tweet.imageName);
-    console.log("Old tweet image successfully removed");
+    console.log(`Tweet image ${tweet.imageName} successfully removed from storage`);
   },
 };
 

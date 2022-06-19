@@ -1,4 +1,10 @@
-const { createTweetService, editTweetService, editTweetImageService } = require("../services/tweetService");
+const {
+  createTweetService,
+  editTweetService,
+  editTweetImageService,
+  deleteTweetImageService,
+  getTweetsService,
+} = require("../services/tweetService");
 const storageMethods = require("../infrastructure/storage/storageMethods");
 
 const createTweet = async (req, res) => {
@@ -10,7 +16,7 @@ const createTweet = async (req, res) => {
     return res.end("All inputs are required");
   }
 
-  return createTweetService(req, res);
+  return await createTweetService(req, res);
 };
 
 const editTweet = async (req, res) => {
@@ -21,13 +27,13 @@ const editTweet = async (req, res) => {
     return res.end("All inputs are required");
   }
 
-  return editTweetService(req, res);
+  return await editTweetService(req, res);
 };
 
-const editTweetImage = async (req, res) => {
-  await storageMethods.editTweetImage(req);
+const editTweetImage = async (req, res) => await editTweetImageService(req, res);
 
-  return editTweetImageService(req, res);
-};
+const deleteTweetImage = async (req, res) => await deleteTweetImageService(req, res);
 
-module.exports = { createTweet, editTweet, editTweetImage };
+const getTweets = async (req) => await getTweetsService(req);
+
+module.exports = { createTweet, editTweet, editTweetImage, deleteTweetImage, getTweets };
