@@ -1,6 +1,5 @@
-const { registerUser, loginUser, getUsers, logoutUser } = require("./controllers/authController");
-const mainErrorHandler = require("./errorHandlers/mainErrorHandler");
 const parseBody = require("./middlewares/parseBody");
+const { registerUser, loginUser, getUsers, logoutUser } = require("./controllers/authController");
 const checkAuth = require("./middlewares/checkAuth");
 const {
   createTweet,
@@ -8,10 +7,10 @@ const {
   editTweetImage,
   deleteTweetImage,
   getTweets,
+  getTweetImage,
 } = require("./controllers/tweetsController");
-
-const UNAUTHORIZED_CODE = 401;
-const NOT_FOUND_CODE = 404;
+const { httpStatusCodes } = require("./constants");
+const { mainErrorHandler } = require("./errorHandlers/mainErrorHandler");
 
 const serverBuilder = {
   methods: {
@@ -19,55 +18,60 @@ const serverBuilder = {
       "/users": {
         controller: getUsers,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
       "/tweets": {
         controller: getTweets,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
+      },
+      "/tweet/:param/image": {
+        controller: getTweetImage,
+        middlewares: [checkAuth],
+        successCode: httpStatusCodes.OK,
       },
     },
     POST: {
       "/register": {
         controller: registerUser,
         middlewares: [],
-        successCode: 201,
+        successCode: httpStatusCodes.CREATED,
       },
       "/login": {
         controller: loginUser,
         middlewares: [],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
       "/logout": {
         controller: logoutUser,
         middlewares: [],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
       "/tweet": {
         controller: createTweet,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.CREATED,
       },
     },
     PUT: {
       "/tweet/:param/image": {
         controller: editTweetImage,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
     },
     DELETE: {
       "/tweet/:param/image": {
         controller: deleteTweetImage,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
     },
     PATCH: {
       "/tweet/:param": {
         controller: editTweet,
         middlewares: [checkAuth],
-        successCode: 200,
+        successCode: httpStatusCodes.OK,
       },
     },
   },
@@ -111,7 +115,7 @@ const serverHandlerFunction = async (req, res) => {
       res.end("This endpoint doesn't exist");
     }
 
-    if (res.statusCode !== UNAUTHORIZED_CODE && res.statusCode !== NOT_FOUND_CODE) {
+    if (res.statusCode !== httpStatusCodes.UNAUTHORIZED && res.statusCode !== httpStatusCodes.NOT_FOUND) {
       if (endpoint.controller.length > 1) {
         await endpoint.controller(req, res);
       } else {
@@ -123,8 +127,8 @@ const serverHandlerFunction = async (req, res) => {
       }
     }
   } catch (e) {
-    serverBuilder.errorHandler(e);
+    serverBuilder.errorHandler(e, res);
   }
 };
 
-module.exports = { serverHandlerFunction, serverBuilder };
+module.exports = { serverHandlerFunction, serverBuilder, httpStatusCodes };

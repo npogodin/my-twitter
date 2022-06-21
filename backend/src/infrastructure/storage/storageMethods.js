@@ -64,6 +64,9 @@ const storageMethods = {
           await storageInstance.putObject(userBucketName, part.filename, part);
           req.body.uploadedImageName = part.filename;
           req.body.uploadedImageExtension = part.filename.split(".").pop();
+          if (req.body.uploadedImageExtension === "jpg") {
+            req.body.uploadedImageExtension = "jpeg";
+          }
           resolve();
         }
       });
@@ -80,6 +83,12 @@ const storageMethods = {
 
     await storageInstance.removeObject(userBucketName, tweet.imageName);
     console.log(`Tweet image ${tweet.imageName} successfully removed from storage`);
+  },
+  getTweetImage: async (tweet) => {
+    const storageInstance = getStorageInstance();
+    const userBucketName = `${tweet.author.toLowerCase()}-bucket`;
+
+    return await storageInstance.getObject(userBucketName, tweet.imageName);
   },
 };
 

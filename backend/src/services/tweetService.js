@@ -1,88 +1,74 @@
 const { v4: uuidv4 } = require("uuid");
+const { httpStatusCodes } = require("../constants");
+const { CustomError } = require("../errorHandlers/mainErrorHandler");
 const { dbTweetMethods } = require("../infrastructure/db/dbMethods");
 const storageMethods = require("../infrastructure/storage/storageMethods");
-const getUserFromToken = require("../utils/getUserFromToken");
 
-const createTweetService = async (req, res) => {
-  const { title, message, uploadedImageName, uploadedImageExtension } = req.body;
-
-  const author = await getUserFromToken(req);
+const createTweetService = ({ author, title, message, uploadedImageName, uploadedImageExtension }) => {
   const newTweetId = uuidv4();
-  await dbTweetMethods.createTweet([
-    newTweetId,
-    author.nickname,
-    title,
-    message,
-    uploadedImageName,
-    uploadedImageExtension,
-  ]);
-  res.end(`New tweet "${title}" has been created"`);
+  dbTweetMethods.createTweet([newTweetId, author.nickname, title, message, uploadedImageName, uploadedImageExtension]);
+
+  return `New tweet '${title}' has been created`;
 };
 
-const editTweetService = async (req, res) => {
-  const { title, message } = req.body;
-
-  const tweetId = req.url.replace("/tweet/", "");
+const editTweetService = async ({ tweetId, title, message }) => {
   const tweet = await dbTweetMethods.findTweetByField("id", tweetId);
-  if (tweet) {
-    if (tweet.title !== title) {
-      await dbTweetMethods.editTweetField(tweet.id, "title", [title]);
-    }
-    if (tweet.message !== message) {
-      await dbTweetMethods.editTweetField(tweet.id, "message", [message]);
-    }
-    return res.end("Tweet was successfully edited");
+  if (!tweet) {
+    throw new CustomError("Tweet doesn't exist in database", httpStatusCodes.NOT_FOUND);
   }
 
-  return res.end("Tweet doesn't exist in database");
+  if (tweet.title !== title) {
+    dbTweetMethods.editTweetField(tweet.id, "title", [title]);
+  }
+  if (tweet.message !== message) {
+    dbTweetMethods.editTweetField(tweet.id, "message", [message]);
+  }
+  return "Tweet was successfully edited";
 };
 
-const editTweetImageService = async (req, res) => {
-  await storageMethods.addNewTweetImage(req);
-
-  const tweetId = req.url.replace("/tweet/", "").replace("/image", "");
+const editTweetImageService = async ({ tweetId, uploadedImageName, uploadedImageExtension }) => {
   const tweet = await dbTweetMethods.findTweetByField("id", tweetId);
 
-  if (tweet) {
-    storageMethods.deleteTweetImage(tweet);
-
-    await dbTweetMethods.editTweetField(tweet.id, "imageName", req.body.uploadedImageName);
-    await dbTweetMethods.editTweetField(tweet.id, "imageExtension", req.body.uploadedImageExtension);
-    return res.end("Tweet image is successfully updated");
+  if (!tweet) {
+    throw new CustomError("Tweet doesn't exist in database", httpStatusCodes.NOT_FOUND);
   }
-  return res.end("Tweet doesn't exist in database");
+
+  storageMethods.deleteTweetImage(tweet);
+  dbTweetMethods.editTweetField(tweet.id, "imageName", uploadedImageName);
+  dbTweetMethods.editTweetField(tweet.id, "imageExtension", uploadedImageExtension);
+
+  return "Tweet image is successfully updated";
 };
 
-const deleteTweetImageService = async (req, res) => {
-  const tweetId = req.url.replace("/tweet/", "").replace("/image", "");
+const deleteTweetImageService = async (tweetId) => {
   const tweet = await dbTweetMethods.findTweetByField("id", tweetId);
 
-  if (tweet) {
-    await storageMethods.deleteTweetImage(tweet);
-    await dbTweetMethods.editTweetField(tweet.id, "imageName", null);
-    await dbTweetMethods.editTweetField(tweet.id, "imageExtension", null);
-    return res.end("Tweet image is successfully deleted");
+  if (!tweet) {
+    throw new CustomError("Tweet doesn't exist in database", httpStatusCodes.NOT_FOUND);
   }
-  return res.end("Tweet doesn't exist in database");
+
+  storageMethods.deleteTweetImage(tweet);
+  dbTweetMethods.editTweetField(tweet.id, "imageName", null);
+  dbTweetMethods.editTweetField(tweet.id, "imageExtension", null);
+
+  return "Tweet image was successfully deleted";
 };
 
-const getTweetsService = async (req) => {
-  const queryParams = {};
-  req.url
-    ?.split("?")[1]
-    ?.split("&")
-    ?.forEach((param) => {
-      const parsedParam = param.split("=");
-      queryParams[parsedParam[0]] = parsedParam[1];
-    });
-
+const getTweetsService = (queryParams) => {
   if (queryParams.start && queryParams.limit) {
-    return await dbTweetMethods.getTweetsList(`${queryParams.start},${queryParams.limit}`);
+    return dbTweetMethods.getTweetsList(`${queryParams.start},${queryParams.limit}`);
   } else if (queryParams.limit) {
-    return await dbTweetMethods.getTweetsList(`${queryParams.limit}`);
+    return dbTweetMethods.getTweetsList(`${queryParams.limit}`);
   }
 
-  return await dbTweetMethods.getTweetsList();
+  return dbTweetMethods.getTweetsList();
+};
+
+const getTweetImageService = async (tweetId) => {
+  const tweet = await dbTweetMethods.findTweetByField("id", tweetId);
+  const imageStream = await storageMethods.getTweetImage(tweet);
+
+  return [imageStream, tweet];
 };
 
 module.exports = {
@@ -91,4 +77,5 @@ module.exports = {
   editTweetImageService,
   deleteTweetImageService,
   getTweetsService,
+  getTweetImageService,
 };

@@ -1,25 +1,29 @@
+const { httpStatusCodes } = require("../constants");
+const { CustomError } = require("../errorHandlers/mainErrorHandler");
 const { createNewUserService, loginUserService, getUsersListService } = require("../services/authService");
 
-const registerUser = async (req, res) => {
+const registerUser = (req) => {
   const { nickname, password } = req.body;
 
   if (!(nickname && password)) {
-    res.statusCode = 400;
-    return res.end("All inputs are required");
+    throw new CustomError("All inputs are required", httpStatusCodes.BAD_REQUEST);
   }
 
-  return createNewUserService(req, res);
+  return createNewUserService(nickname, password);
 };
 
 const loginUser = async (req, res) => {
   const { nickname, password } = req.body;
 
   if (!(nickname && password)) {
-    res.statusCode = 400;
-    return res.end("All inputs are required");
+    throw new CustomError("All inputs are required", httpStatusCodes.BAD_REQUEST);
   }
 
-  return loginUserService(req, res);
+  const [user, token] = await loginUserService(nickname, password);
+
+  res.setHeader("Set-Cookie", `token=${token}; Max-Age=7200; HttpOnly, Secure`);
+  res.statusCode = httpStatusCodes.OK;
+  res.end(`${user.nickname}, you have been successfully logged in`);
 };
 
 const logoutUser = async (req, res) => {
@@ -27,8 +31,8 @@ const logoutUser = async (req, res) => {
   res.end("You have been successfully logged out");
 };
 
-const getUsers = async () => {
-  return await getUsersListService();
+const getUsers = () => {
+  return getUsersListService();
 };
 
 module.exports = { registerUser, loginUser, logoutUser, getUsers };

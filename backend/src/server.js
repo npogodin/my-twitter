@@ -9,8 +9,6 @@ initializeStorage();
 
 const server = http.createServer(async (req, res) => {
   await serverHandlerFunction(req, res);
-
-  res.end();
 });
 
 server.listen(process.env.PORT, () => {
