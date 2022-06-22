@@ -1,1 +1,1 @@
-CREATE TABLE tweets (id VARCHAR(255), author VARCHAR(255), title VARCHAR(255), message VARCHAR(255), imageName VARCHAR(255), imageExtension VARCHAR(255));
+CREATE TABLE tweets (id int NOT NULL AUTO_INCREMENT, author VARCHAR(255), title VARCHAR(255), message VARCHAR(255), imageName VARCHAR(255), imageExtension VARCHAR(255), PRIMARY KEY (id));

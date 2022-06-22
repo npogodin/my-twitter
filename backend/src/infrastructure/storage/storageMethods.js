@@ -1,3 +1,4 @@
+const path = require("path");
 const multiparty = require("multiparty");
 const { getStorageInstance } = require("./initializeStorage");
 const getUserFromToken = require("../../utils/getUserFromToken");
@@ -34,7 +35,7 @@ const storageMethods = {
           isFilePresentInForm = true;
           await storageInstance.putObject(userBucketName, part.filename, part);
           req.body.uploadedImageName = part.filename;
-          req.body.uploadedImageExtension = part.filename.split(".").pop();
+          req.body.uploadedImageExtension = path.extname(part.filename);
           resolve();
         }
       });
@@ -63,10 +64,8 @@ const storageMethods = {
         if (part.filename !== undefined) {
           await storageInstance.putObject(userBucketName, part.filename, part);
           req.body.uploadedImageName = part.filename;
-          req.body.uploadedImageExtension = part.filename.split(".").pop();
-          if (req.body.uploadedImageExtension === "jpg") {
-            req.body.uploadedImageExtension = "jpeg";
-          }
+          req.body.uploadedImageExtension = path.extname(part.filename);
+
           resolve();
         }
       });

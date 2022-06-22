@@ -1,12 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
 const { httpStatusCodes } = require("../constants");
 const { CustomError } = require("../errorHandlers/mainErrorHandler");
 const { dbTweetMethods } = require("../infrastructure/db/dbMethods");
 const storageMethods = require("../infrastructure/storage/storageMethods");
 
 const createTweetService = ({ author, title, message, uploadedImageName, uploadedImageExtension }) => {
-  const newTweetId = uuidv4();
-  dbTweetMethods.createTweet([newTweetId, author.nickname, title, message, uploadedImageName, uploadedImageExtension]);
+  dbTweetMethods.createTweet([author.nickname, title, message, uploadedImageName, uploadedImageExtension]);
 
   return `New tweet '${title}' has been created`;
 };

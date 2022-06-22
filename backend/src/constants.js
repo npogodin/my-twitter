@@ -9,4 +9,15 @@ const httpStatusCodes = {
   INTERNAL_SERVER: 500,
 };
 
-module.exports = { httpStatusCodes };
+const fileContentTypes = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".png": "image/png",
+  ".tif": "image/tiff",
+  ".tiff": "image/tiff",
+  ".svg": "image/svg+xml",
+  ".pdf": "application/pdf",
+};
+
+module.exports = { httpStatusCodes, fileContentTypes };

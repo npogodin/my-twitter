@@ -1,6 +1,5 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
 const { httpStatusCodes } = require("../constants");
 const { CustomError } = require("../errorHandlers/mainErrorHandler");
 const { dbUserMethods } = require("../infrastructure/db/dbMethods");
@@ -11,9 +10,8 @@ const createNewUserService = async (nickname, password) => {
     throw new CustomError("User already exists. Please choose other nickname", httpStatusCodes.CONFLICT);
   }
 
-  const newUserId = uuidv4();
   const encryptedPassword = await bcrypt.hash(password, 10);
-  await dbUserMethods.createUser([newUserId, nickname, encryptedPassword]);
+  await dbUserMethods.createUser([nickname, encryptedPassword]);
 
   return `New user ${nickname} has been created`;
 };

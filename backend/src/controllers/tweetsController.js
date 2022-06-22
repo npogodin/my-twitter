@@ -8,7 +8,7 @@ const {
 } = require("../services/tweetService");
 const storageMethods = require("../infrastructure/storage/storageMethods");
 const { CustomError } = require("../errorHandlers/mainErrorHandler");
-const { httpStatusCodes } = require("../constants");
+const { httpStatusCodes, fileContentTypes } = require("../constants");
 const getUserFromToken = require("../utils/getUserFromToken");
 
 const createTweet = async (req) => {
@@ -55,7 +55,7 @@ const getTweetImage = async (req, res) => {
 
   const [imageStream, tweet] = await getTweetImageService(tweetId);
 
-  res.setHeader("Content-Type", `image/${tweet.imageExtension}`);
+  res.setHeader("Content-Type", fileContentTypes[tweet.imageExtension]);
   res.statusCode = httpStatusCodes.OK;
   imageStream.pipe(res);
 };

@@ -8,7 +8,7 @@ const dbUserMethods = {
   },
   createUser: async (values) => {
     const dbConnection = await getDbConnection();
-    await dbConnection.query("INSERT INTO users (id, nickname, password) VALUES(?)", [values]);
+    await dbConnection.query("INSERT INTO users (nickname, password) VALUES(?)", [values]);
   },
   getUsersList: async () => {
     const dbConnection = await getDbConnection();
@@ -25,7 +25,7 @@ const dbTweetMethods = {
   },
   createTweet: async (values) => {
     const dbConnection = await getDbConnection();
-    await dbConnection.query("INSERT INTO tweets (id, author, title, message, imageName, imageExtension) VALUES(?)", [
+    await dbConnection.query("INSERT INTO tweets (author, title, message, imageName, imageExtension) VALUES(?)", [
       values,
     ]);
   },

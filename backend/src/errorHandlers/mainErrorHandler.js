@@ -1,8 +1,6 @@
 class CustomError extends Error {
   constructor(message, statusCode) {
-    super();
-    Object.setPrototypeOf(this, new.target.prototype);
-    this.message = message;
+    super(message);
     this.statusCode = statusCode;
     Error.captureStackTrace(this);
   }
